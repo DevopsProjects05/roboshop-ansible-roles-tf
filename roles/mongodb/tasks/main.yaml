@@ -1,3 +1,11 @@
+- name: Ensure python3-dnf is installed
+  ansible.builtin.dnf:
+    name: python3-dnf
+    state: present
+  become: true
+  vars:
+    ansible_python_interpreter: /usr/libexec/platform-python
+
 - name: Copy mongodb repo
   ansible.builtin.copy:
     src: mongodb.repo
@@ -8,6 +16,8 @@
     name: mongodb-org
     state: present
   become: true
+  vars:
+    ansible_python_interpreter: /usr/libexec/platform-python
 
 - name: Start and enable mongodb
   ansible.builtin.service:
