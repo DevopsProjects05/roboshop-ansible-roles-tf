@@ -1,12 +1,6 @@
-- name: Update all system packages to ensure compatibility
+- name: Install a compatible Remi repository package
   ansible.builtin.dnf:
-    name: '*'
-    state: latest
-  become: true
-
-- name: Install Remi repository package from URL
-  ansible.builtin.dnf:
-    name: https://rpms.remirepo.net/enterprise/remi-release-8.rpm
+    name: http://rpms.remirepo.net/enterprise/remi-release-8.8.rpm
     state: present
     disable_gpg_check: true
   become: true
