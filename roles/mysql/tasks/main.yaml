@@ -41,15 +41,10 @@
   changed_when: false
   become: true
 
-- name: Securely set the root password using the temporary password
-  community.mysql.mysql_user:
-    login_user: root
-    login_password: "{{ temp_pass_result.stdout }}"
-    login_unix_socket: /var/lib/mysql/mysql.sock
-    name: root
-    host: localhost
-    password: "{{ lookup('aws_ssm', '/roboshop/{{env}}/mysql_root_pass', region='us-east-1', decrypt=True) }}"
-    priv: '*.*:ALL,GRANT'
-    state: present
+- name: Set the final root password using a direct shell command
+  ansible.builtin.shell:
+    # This command uses the temporary password to execute an ALTER USER statement.
+    # The --connect-expired-password flag is crucial for this to work.
+    cmd: "mysql -u root -p'{{ temp_pass_result.stdout }}' --connect-expired-password -e \"ALTER USER 'root'@'localhost' IDENTIFIED BY '{{ lookup('aws_ssm', '/roboshop/{{env}}/mysql_root_pass', region='us-east-1', decrypt=True) }}';\""
   become: true
-  no_log: true
+  # We are intentionally leaving out 'no_log: true' for debugging.
