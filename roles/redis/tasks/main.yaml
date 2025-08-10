@@ -1,11 +1,19 @@
-- name: Install Remi repository package
+- name: Update all system packages to ensure compatibility
   ansible.builtin.dnf:
-    name: remi-release
+    name: '*'
+    state: latest
+  become: true
+
+- name: Install Remi repository package from URL
+  ansible.builtin.dnf:
+    name: https://rpms.remirepo.net/enterprise/remi-release-8.rpm
     state: present
+    disable_gpg_check: true
   become: true
 
 - name: Enable Redis 6.2 module
-  ansible.builtin.command: dnf module enable redis:remi-6.2 -y
+  ansible.builtin.command:
+    cmd: dnf module enable redis:remi-6.2 -y
   become: true
 
 - name: Install Redis
