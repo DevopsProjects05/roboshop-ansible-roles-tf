@@ -1,50 +1,21 @@
-- name: Disable the default MySQL module
-  ansible.builtin.command:
-    cmd: dnf module disable mysql -y
-  become: true
+- name: disable current version of mysql
+  ansible.builtin.command: dnf module disable mysql -y
 
-- name: Copy MySQL repository configuration
+- name: setup mysql5.7 repo
   ansible.builtin.copy:
     src: mysql.repo
     dest: /etc/yum.repos.d/mysql.repo
-  become: true
 
-- name: Install MySQL Community Server
+- name: install mysql server
   ansible.builtin.package:
     name: mysql-community-server
     state: present
-  become: true
-  vars:
-    ansible_python_interpreter: /usr/libexec/platform-python
 
-- name: Start and enable MySQL service
+- name: start and enable mysql
   ansible.builtin.service:
     name: mysqld
     state: started
     enabled: yes
-  become: true
 
-- name: Wait for MySQL to be ready before proceeding
-  ansible.builtin.wait_for:
-    path: /var/lib/mysql/mysql.sock
-    state: present
-    timeout: 30
-  become: true
-
-- name: Get the temporary root password (with retries)
-  ansible.builtin.shell:
-    cmd: "grep 'temporary password' /var/log/mysqld.log | awk '{print $NF}'"
-  register: temp_pass_result
-  until: temp_pass_result.stdout != ""
-  retries: 10
-  delay: 5
-  changed_when: false
-  become: true
-
-- name: Set the final root password using a direct shell command
-  ansible.builtin.shell:
-    # This command uses the temporary password to execute an ALTER USER statement.
-    # The --connect-expired-password flag is crucial for this to work.
-    cmd: "mysql -u root -p'{{ temp_pass_result.stdout }}' --connect-expired-password -e \"ALTER USER 'root'@'localhost' IDENTIFIED BY '{{ lookup('aws_ssm', '/roboshop/{{env}}/mysql_root_pass', region='us-east-1', decrypt=True) }}';\""
-  become: true
-  # We are intentionally leaving out 'no_log: true' for debugging.
+- name: setup root password
+  ansible.builtin.command: "mysql_secure_installation --set-root-pass {{ lookup('aws_ssm', '/roboshop/{{env}}/mysql_root_pass', region='us-east-1', decrypt=True ) }}"
