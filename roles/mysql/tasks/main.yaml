@@ -31,10 +31,13 @@
     timeout: 30
   become: true
 
-- name: Get the temporary root password
+- name: Get the temporary root password (with retries)
   ansible.builtin.shell:
     cmd: "grep 'temporary password' /var/log/mysqld.log | awk '{print $NF}'"
   register: temp_pass_result
+  until: temp_pass_result.stdout != ""
+  retries: 10
+  delay: 5
   changed_when: false
   become: true
 
