@@ -24,8 +24,25 @@
     enabled: yes
   become: true
 
-- name: Securely set the root password
+- name: Wait for MySQL to be ready before proceeding
+  ansible.builtin.wait_for:
+    path: /var/lib/mysql/mysql.sock
+    state: present
+    timeout: 30
+  become: true
+
+- name: Get the temporary root password
+  ansible.builtin.shell:
+    cmd: "grep 'temporary password' /var/log/mysqld.log | awk '{print $NF}'"
+  register: temp_pass_result
+  changed_when: false
+  become: true
+
+- name: Securely set the root password using the temporary password
   community.mysql.mysql_user:
+    login_user: root
+    login_password: "{{ temp_pass_result.stdout }}"
+    login_unix_socket: /var/lib/mysql/mysql.sock
     name: root
     host: localhost
     password: "{{ lookup('aws_ssm', '/roboshop/{{env}}/mysql_root_pass', region='us-east-1', decrypt=True) }}"
