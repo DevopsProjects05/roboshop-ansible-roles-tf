@@ -9,10 +9,14 @@
     state: started
     enabled: yes
 
+- name: package installations
+  ansible.builtin.command: yum install pip3.9
+    
+
 - name: install boto3 and botocore
   ansible.builtin.pip:
     name: "{{ item }}"
-    executable: pip3
+    executable: pip3.9
   loop:
   - packaging
   - boto3
