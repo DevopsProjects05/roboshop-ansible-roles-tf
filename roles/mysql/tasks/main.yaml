@@ -10,7 +10,10 @@
     enabled: yes
 
 - name: package installations
-  ansible.builtin.command: yum install pip3
+  ansible.builtin.yum:
+    # yum install pip3
+    name: python3-pip
+    state: present
     
 
 - name: install boto3 and botocore
