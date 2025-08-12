@@ -21,7 +21,7 @@
     name: "{{ item }}"
     executable: pip3
   loop:
-  - packaging
+  # - packaging
   - boto3
   - botocore
 
