@@ -9,21 +9,21 @@
     state: started
     enabled: yes
 
-- name: package installations
-  ansible.builtin.yum:
-    # yum install pip3
-    name: python3-pip
-    state: present
+# - name: package installations
+#   ansible.builtin.yum:
+#     # yum install pip3
+#     name: python3-pip
+#     state: present
     
 
-- name: install boto3 and botocore
-  ansible.builtin.pip:
-    name: "{{ item }}"
-    executable: pip3
-  loop:
-  # - packaging
-  - boto3
-  - botocore
+# - name: install boto3 and botocore
+#   ansible.builtin.pip:
+#     name: "{{ item }}"
+#     executable: pip3
+#   loop:
+#   # - packaging
+#   - boto3
+#   - botocore
 
 - name: setp root password
   ansible.builtin.command: mysql_secure_installation --set-root-pass Roboshop@1
