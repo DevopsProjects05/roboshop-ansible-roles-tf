@@ -3,10 +3,11 @@
     src: mongodb.repo
     dest: /etc/yum.repos.d/mongodb.repo
 
-- name: Install mongodb client
+- name: Install MongoDB shell
   ansible.builtin.package:
-    name: mongodb-org-shell
+    name: mongodb-mongosh
     state: present
+
 
 - name: "get the catalogue entries count"
   ansible.builtin.shell:  mongo --host {{MONGODB_HOST}} --quiet --eval 'db = db.getSiblingDB("catalogue"); db.products.count()'
